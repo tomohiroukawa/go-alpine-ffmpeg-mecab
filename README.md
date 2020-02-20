@@ -9,5 +9,6 @@ https://hub.docker.com/repository/docker/tomohiroukawa/go-alpine-ffmpeg-mecab
 
 # CHANGES
 
-- Changed Dockerfile for diet
-- Added inital Dockerfile
+- Tweaks: don't delete build-base package
+- Changed: Dockerfile for diet
+- Added: inital Dockerfile

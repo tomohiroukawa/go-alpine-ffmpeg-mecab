@@ -25,7 +25,7 @@ RUN apk add ffmpeg-dev ffmpeg ca-certificates tzdata bash gcc curl build-base gi
     git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git  && \
     mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -n -y && \
     rm -fr /local && \
-    apk del build-base git curl && \
+    apk del git curl && \
     rm -fr /tmp/src && \
     rm -fr /var/cache/apk
 
