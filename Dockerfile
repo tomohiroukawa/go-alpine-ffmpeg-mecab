@@ -1,36 +1,33 @@
 FROM golang:alpine3.11
 
-# Install packages
-RUN apk add ffmpeg-dev ffmpeg ca-certificates tzdata bash gcc curl build-base git openssl
-
 # Set various variables
 ENV IPADIC_VERSION 2.7.0-20070801
 ENV IPADIC_URL https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM
 
-# Install mecab
+# Install packages, mecab, ipadic, neologd
 WORKDIR /local
-RUN curl -L -o mecab-0.996.tar.gz 'https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7cENtOXlicTFaRUE' && \
-tar -zxf mecab-0.996.tar.gz
-
-WORKDIR /local/mecab-0.996
-RUN  ./configure --enable-utf8-only --with-charset=utf8 && \
-make && \
-make check && \
-make install
-
-# Install IPA dic
-WORKDIR /local
-RUN curl -SL -o mecab-ipadic-${IPADIC_VERSION}.tar.gz ${IPADIC_URL} && \
-tar zxf mecab-ipadic-${IPADIC_VERSION}.tar.gz && \
-cd mecab-ipadic-${IPADIC_VERSION} && \
-./configure --with-charset=utf8 && \
-make && \
-make install
-
-# Install Neologd
-WORKDIR /local
-RUN git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git  && \
-mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -n -y
+RUN apk add ffmpeg-dev ffmpeg ca-certificates tzdata bash gcc curl build-base git openssl && \
+    curl -L -o mecab-0.996.tar.gz 'https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7cENtOXlicTFaRUE' && \
+    tar -zxf mecab-0.996.tar.gz && \
+    cd /local/mecab-0.996 && \
+    ./configure --enable-utf8-only --with-charset=utf8 && \
+    make && \
+    make check && \
+    make install && \
+    cd /local && \
+    curl -SL -o mecab-ipadic-${IPADIC_VERSION}.tar.gz ${IPADIC_URL} && \
+    tar zxf mecab-ipadic-${IPADIC_VERSION}.tar.gz && \
+    cd mecab-ipadic-${IPADIC_VERSION} && \
+    ./configure --with-charset=utf8 && \
+    make && \
+    make install && \
+    cd /local && \
+    git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git  && \
+    mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -n -y && \
+    rm -fr /local && \
+    apk del build-base git curl && \
+    rm -fr /tmp/src && \
+    rm -fr /var/cache/apk
 
 ## Install cabocha
 #WORKDIR /local
