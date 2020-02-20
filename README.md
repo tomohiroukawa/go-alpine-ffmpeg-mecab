@@ -6,3 +6,7 @@ https://hub.docker.com/repository/docker/tomohiroukawa/go-alpine-ffmpeg-mecab
 - ffmpeg
 - mecab
 - mecab-ipadic-neologd# go-alpine-ffmpeg-mecab
+
+# CHANGES
+
+- Added inital Dockerfile
