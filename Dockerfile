@@ -1,29 +1,41 @@
-FROM golang:alpine3.11
-
-# Set various variables
-ENV IPADIC_VERSION 2.7.0-20070801
-ENV IPADIC_URL https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7MWVlSDBCSXZMTXM
+FROM golang:alpine3.18
 
 # Install packages, mecab, ipadic, neologd
 WORKDIR /local
-RUN apk add ffmpeg-dev ffmpeg ca-certificates tzdata bash gcc curl build-base git openssl && \
-    curl -L -o mecab-0.996.tar.gz 'https://drive.google.com/uc?export=download&id=0B4y35FiV1wh7cENtOXlicTFaRUE' && \
+
+# Copy mecab & ipadic
+COPY ./mecab-0.996.tar.gz .
+
+RUN apk add \
+    ffmpeg-dev \
+    ffmpeg \
+    ca-certificates \
+    tzdata \
+    bash \
+    gcc \
+    curl \
+    build-base \
+    git \
+    openssl \
+    && \
     tar -zxf mecab-0.996.tar.gz && \
     cd /local/mecab-0.996 && \
     ./configure --enable-utf8-only --with-charset=utf8 && \
     make && \
     make check && \
-    make install && \
+    make install  \
+    && \
     cd /local && \
-    curl -SL -o mecab-ipadic-${IPADIC_VERSION}.tar.gz ${IPADIC_URL} && \
-    tar zxf mecab-ipadic-${IPADIC_VERSION}.tar.gz && \
-    cd mecab-ipadic-${IPADIC_VERSION} && \
+    curl -o mecab-ipadic-2.7.0-20070801.tar.gz -OL "https://sourceforge.net/projects/mecab/files/mecab-ipadic/2.7.0-20070801/mecab-ipadic-2.7.0-20070801.tar.gz/download?use_mirror=autoselect" && \
+    tar zxf mecab-ipadic-2.7.0-20070801.tar.gz && \
+    cd mecab-ipadic-2.7.0-20070801 && \
     ./configure --with-charset=utf8 && \
     make && \
     make install && \
     cd /local && \
-    git clone --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git  && \
-    mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -n -y && \
+    git clone --depth 1 https://github.com/tomohiroukawa/mecab-ipadic-neologd.git  && \
+    ./mecab-ipadic-neologd/bin/install-mecab-ipadic-neologd -n -y \
+    && \
     rm -fr /local && \
     apk del git curl && \
     rm -fr /tmp/src && \
@@ -42,6 +54,6 @@ RUN apk add ffmpeg-dev ffmpeg ca-certificates tzdata bash gcc curl build-base gi
 #make install
 
 # set mecab env vars
-ENV CGO_LDFLAGS "-L/usr/local/lib -lmecab -lstdc++"
-ENV CGO_CFLAGS "-I/usr/local/include"
-ENV GOPROXY https://proxy.golang.org
+ENV CGO_LDFLAGS="-L/usr/local/lib -lmecab -lstdc++"
+ENV CGO_CFLAGS="-I/usr/local/include"
+ENV GOPROXY=https://proxy.golang.org
